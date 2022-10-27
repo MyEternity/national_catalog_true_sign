@@ -39,7 +39,7 @@ def update_api_token(req):
     return True
 
 
-def main(save_debug: int):
+def main(debug: int):
     req = requests.Session()
     if update_api_token(req):
         print('Reading task data from database...')
@@ -59,8 +59,9 @@ def main(save_debug: int):
                                 write_status(row['guid'], -2)
                                 print(f'Ware {row["ware_gtin"]} found and its in errored state.')
                             try:
-                                with open(f'{row["guid"]}.json', 'w', encoding='UTF8') as f:
-                                    f.write(json.dumps(json.loads(reply.content)))
+                                if debug == 1:
+                                    with open(f'{row["guid"]}.json', 'w', encoding='UTF8') as f:
+                                        f.write(json.dumps(json.loads(reply.content)))
                             except Exception as E:
                                 print(f'Failed save data {E}')
                         except Exception as E:
