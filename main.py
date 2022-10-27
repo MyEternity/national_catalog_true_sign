@@ -83,6 +83,7 @@ if __name__ == "__main__":
     print('Initialization...')
     try:
         save_debug = int(sys.argv[1])
+        print('Save debug mode: On')
     except Exception as E:
         save_debug = 0
     while True:
