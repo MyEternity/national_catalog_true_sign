@@ -63,7 +63,7 @@ def main(debug: int):
                                 if debug == 1:
                                     if not os.path.exists('dumps'):
                                         os.makedirs('dumps')
-                                        with open(f'dumps/{row["guid"]}.json', 'w', encoding='UTF8') as f:
+                                        with open(f'dumps/{row["ware_gtin"]}.json', 'w', encoding='UTF8') as f:
                                             f.write(json.dumps(json.loads(reply.content), indent=4, sort_keys=False,
                                                                ensure_ascii=False, separators=(',', ': ')))
                             except Exception as Err:
