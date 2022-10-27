@@ -29,8 +29,8 @@ def update_api_token(req):
             att_token = api_token.get('token_a')
             token_expires = datetime.datetime.strptime(api_token.get('expires'), '%Y-%m-%dT%H:%M:%S.%f')
             print(f'Token updated, new expire datetime is: {token_expires}')
-    except Exception as E:
-        print(f'Error updating token: {E}')
+    except Exception as Error:
+        print(f'Error updating token: {Error}')
         return False
 
     h = {'Authorization': f'Bearer {att_token}'}
@@ -61,11 +61,12 @@ def main(debug: int):
                             try:
                                 if debug == 1:
                                     with open(f'{row["guid"]}.json', 'w', encoding='UTF8') as f:
-                                        f.write(json.dumps(json.loads(reply.content)))
-                            except Exception as E:
-                                print(f'Failed save data {E}')
-                        except Exception as E:
-                            print(f'Error analyzing data from api: {E}')
+                                        f.write(json.dumps(json.loads(reply.content), indent=4, sort_keys=False,
+                                                           ensure_ascii=False, separators=(',', ': ')))
+                            except Exception as Err:
+                                print(f'Failed save data {Err}')
+                        except Exception as ErrG:
+                            print(f'Error analyzing data from api: {ErrG}')
                             pass
                     else:
                         if reply.status_code == 429:
@@ -84,7 +85,8 @@ if __name__ == "__main__":
     try:
         save_debug = int(sys.argv[1])
         print('Save debug mode: On')
-    except Exception as E:
+    except Exception as ParamErr:
+        print(f'Param error, waiting 0 or 1, error {ParamErr}')
         save_debug = 0
     while True:
         delay = main(save_debug)
