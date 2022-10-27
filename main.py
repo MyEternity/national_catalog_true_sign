@@ -34,6 +34,7 @@ def update_api_token(req):
 
     h = {'Authorization': f'Bearer {att_token}'}
     req.headers.update(h)
+    req.trust_env = False
     return True
 
 
