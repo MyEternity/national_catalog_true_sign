@@ -63,9 +63,9 @@ def main(debug: int):
                                 if debug == 1:
                                     if not os.path.exists('dumps'):
                                         os.makedirs('dumps')
-                                        with open(f'dumps/{row["ware_gtin"]}.json', 'w', encoding='UTF8') as f:
-                                            f.write(json.dumps(json.loads(reply.content), indent=4, sort_keys=False,
-                                                               ensure_ascii=False, separators=(',', ': ')))
+                                    with open(f'dumps/{row["ware_gtin"]}.json', 'w', encoding='UTF8') as f:
+                                        f.write(json.dumps(json.loads(reply.content), indent=4, sort_keys=False,
+                                                           ensure_ascii=False, separators=(',', ': ')))
                             except Exception as Err:
                                 print(f'Failed save data {Err}')
                         except Exception as ErrG:
@@ -92,6 +92,7 @@ if __name__ == "__main__":
         print(f'Param error, waiting 0 or 1, error {ParamErr}')
         save_debug = 0
     while True:
+        save_debug = 1
         delay = main(save_debug)
         print(f'Sleeping... {delay} sec.')
         time.sleep(delay)
