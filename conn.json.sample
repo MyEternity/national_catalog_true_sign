@@ -1,0 +1,7 @@
+{
+	"server": "localhost",
+	"user": "usr",
+	"password": "pwd",
+	"database": "db",
+	"autocommit": true
+}
