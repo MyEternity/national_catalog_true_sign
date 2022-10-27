@@ -92,7 +92,6 @@ if __name__ == "__main__":
         print(f'Param error, waiting 0 or 1, error {ParamErr}')
         save_debug = 0
     while True:
-        save_debug = 1
         delay = main(save_debug)
         print(f'Sleeping... {delay} sec.')
         time.sleep(delay)
