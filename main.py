@@ -69,7 +69,7 @@ def main():
                         else:
                             write_status(row['guid'], -1)
                             print(f'Ware {row["ware_gtin"]} not found or its in errored state.')
-    return 60
+    return 10
 
 
 print('Initialization...')
