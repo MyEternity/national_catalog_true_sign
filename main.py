@@ -40,17 +40,41 @@ def update_api_token(req):
     return True
 
 
-def main(debug: int):
+def get_gtin_data(gtin: str, request):
+    print(
+        f'Processing api call: https://апи.национальный-каталог.рф/v3/product?gtin={gtin}')
+    return request.get(f'https://апи.национальный-каталог.рф/v3/product?gtin={gtin}')
+
+
+def save_gtin_data(gtin: str, reply):
+    try:
+        if not os.path.exists('dumps'):
+            os.makedirs('dumps')
+        with open(f'dumps/{gtin}.json', 'w', encoding='UTF8') as f:
+            f.write(json.dumps(json.loads(reply.content), indent=4, sort_keys=False,
+                               ensure_ascii=False, separators=(',', ': ')))
+    except Exception as Err:
+        print(f'Failed save data {Err}')
+
+
+def main(debug: int, direct_gtin: str):
     req = requests.Session()
     if update_api_token(req):
+        if direct_gtin is not None:
+            try:
+                reply = get_gtin_data(direct_gtin, req)
+                save_gtin_data(direct_gtin, reply)
+            except Exception as E:
+                print(f'Failed direct request: {E}')
+                pass
+            return -1
+
         print('Reading task data from database...')
         with pymssql.connect(**read_connection_params()) as conn:
             with conn.cursor(as_dict=True) as cursor:
                 cursor.execute('select top 90 guid, ware_gtin from [wares_gtins] where check_result = 0')
                 for row in cursor:
-                    print(
-                        f'Processing api call: https://апи.национальный-каталог.рф/v3/product?gtin={row["ware_gtin"]}')
-                    reply = req.get(f'https://апи.национальный-каталог.рф/v3/product?gtin={row["ware_gtin"]}')
+                    reply = get_gtin_data(row["ware_gtin"], req)
                     if reply.status_code == 200:
                         try:
                             if json.loads(reply.content).get('result', '[]')[0].get('good_status', None) == 'published':
@@ -59,15 +83,8 @@ def main(debug: int):
                             else:
                                 write_status(row['guid'], -2)
                                 print(f'Ware {row["ware_gtin"]} found and its in errored state.')
-                            try:
-                                if debug == 1:
-                                    if not os.path.exists('dumps'):
-                                        os.makedirs('dumps')
-                                    with open(f'dumps/{row["ware_gtin"]}.json', 'w', encoding='UTF8') as f:
-                                        f.write(json.dumps(json.loads(reply.content), indent=4, sort_keys=False,
-                                                           ensure_ascii=False, separators=(',', ': ')))
-                            except Exception as Err:
-                                print(f'Failed save data {Err}')
+                            if debug == 1:
+                                save_gtin_data(row["ware_gtin"], reply)
                         except Exception as ErrG:
                             print(f'Error analyzing data from api: {ErrG}')
                             pass
@@ -87,11 +104,15 @@ if __name__ == "__main__":
     print('Initialization...')
     try:
         save_debug = int(sys.argv[1])
+        direct_gtin = int(sys.argv[2])
         print('Save debug mode: On')
     except Exception as ParamErr:
         print(f'Param error, waiting 0 or 1, error {ParamErr}')
         save_debug = 0
+        direct_gtin = None
     while True:
-        delay = main(save_debug)
+        delay = main(save_debug, direct_gtin)
+        if delay == -1:
+            break
         print(f'Sleeping... {delay} sec.')
         time.sleep(delay)
